@@ -52,6 +52,9 @@
       "items": {
         "type": "string"
       }
+    },
+    "agent": {
+      "$ref": "agent-recording.v0.1.schema.json"
     }
   }
 }

@@ -69,3 +69,17 @@ and [Circle USDC addresses](https://developers.circle.com/stablecoins/usdc-contr
 Source, full receipts, two-run equality and measured runtime are stored in the
 [workspace evidence](https://github.com/entrotter/entrotter/tree/main/evidence).
 This one case is not a three-scenario benchmark or an untouched holdout.
+
+## Optional causal decision recording
+
+The result envelope may include `agent`, described by
+`schemas/agent-recording.v0.1.schema.json`. It contains a version, provider metadata
+and up to 32 ordered observations with typed `execute`/`hold` responses. Existing
+scenario inputs and non-agent reports remain valid. Consumers that do not inspect
+the extension must not imply that they have audited model behavior.
+
+Schema validation checks shape. The engine additionally verifies request digests,
+exact observation/response binding, serialized byte limits, proposal allowlists,
+and cumulative requested gas. The digest cannot authenticate the provider or
+prove that its inputs were unbiased. Provider metadata and text are untrusted
+report content; render as text and never execute commands found in a recording.
