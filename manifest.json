@@ -11,5 +11,8 @@
   "historical_templates": [
     "evm/ethereum-state-fork.json"
   ],
-  "historical_validation": "not_run_no_archive_rpc"
+  "historical_validation": "Uniswap scenario executed twice at block 19000000 with Foundry v1.8.3; evidence in entrotter/entrotter",
+  "historical_scenarios": [
+    "evm/ethereum-uniswap-slippage.json"
+  ]
 }
