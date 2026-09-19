@@ -1,0 +1,15 @@
+{
+  "schema_version": "0.1.0",
+  "fixtures": [
+    "fixtures/liquidity-shock.json",
+    "fixtures/recovery-trap.json",
+    "fixtures/depeg-stress.json"
+  ],
+  "evm_local": [
+    "evm/local-branch-revert.json"
+  ],
+  "historical_templates": [
+    "evm/ethereum-state-fork.json"
+  ],
+  "historical_validation": "not_run_no_archive_rpc"
+}
