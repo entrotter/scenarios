@@ -22,11 +22,50 @@ constraints such as target allowlists, positive prices, integer wei, limits and
 mode-specific fields. Neither schema validity nor a content hash proves the
 economic model correct.
 
-To validate (requires the sibling engine and development-only jsonschema):
+To validate (Python 3.11+, a sibling engine checkout and development dependencies):
 
 ```bash
-PYTHONPATH=../engine/src python3 -m unittest discover -s tests -v
+python3 -m venv .venv
+.venv/bin/python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.txt
+PYTHONPATH=../engine/src .venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python -m contract_validation --kind scenario fixtures/*.json evm/*.json
+.venv/bin/python -m contract_validation --kind result /path/to/local-report.json
 ```
+
+The standalone validator loads all three bundled schemas into an explicit in-memory
+registry. Schema URIs are identifiers, not downloads: relative references, including
+`result.agent`, resolve locally; unknown HTTP/file references fail without retrieval.
+A missing schema dependency fails the test suite instead of skipping contract checks.
+Schemas and frozen inputs remain unchanged. This checks wire shape only, not report
+hashes, exact request bindings, engine semantics or financial correctness. The result
+schema remains an envelope; nested scenario/trace fields are not fully constrained.
+Use this development command with local files you intend to inspect; it is not a
+hosted service or resource-limited parser for arbitrary uploads.
+
+CI validates all six catalog examples and five frozen benchmark inputs, rejects
+invalid nested agent records and resolves references with network/file retrieval
+blocked in tests. It also checks 19 existing public result reports from a pinned
+coordination commit (12 contain agent records). Reading these reports is offline
+contract verification, not a new historical execution or model evaluation.
+
+All tracked Python sources, including tests, are checked by Ruff, mypy and a full
+unsuppressed Bandit scan. Both hash-locked dependency sets receive strict advisory
+audits; no advisory IDs are excluded. To reproduce the tooling checks:
+
+```bash
+.venv/bin/python -m pip install --require-hashes --only-binary=:all: -r requirements-quality.txt
+.venv/bin/python -m ruff check contract_validation.py tests
+.venv/bin/python -m ruff format --check contract_validation.py tests
+MYPYPATH=../engine/src .venv/bin/python -m mypy contract_validation.py tests
+.venv/bin/python -m bandit --ignore-nosec contract_validation.py tests/*.py
+.venv/bin/python -m pip_audit --strict --require-hashes --disable-pip -r requirements-quality.txt
+.venv/bin/python -m pip_audit --strict --require-hashes --disable-pip -r requirements-dev.txt
+```
+
+Normal mypy checks unannotated function bodies using the actual sibling engine;
+it does not prove runtime JSON validity. CI uses exact source pins for the original,
+agent and bounded-worker engine variants across Python 3.11–3.13. Proposed branches
+still need independent review; these checks do not merge or release them.
 
 A historical contribution must include a permitted source, chain ID, pinned
 block number and hash, affected contract addresses, source timestamps, archive
