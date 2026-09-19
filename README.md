@@ -83,3 +83,12 @@ exact observation/response binding, serialized byte limits, proposal allowlists,
 and cumulative requested gas. The digest cannot authenticate the provider or
 prove that its inputs were unbiased. Provider metadata and text are untrusted
 report content; render as text and never execute commands found in a recording.
+
+## Frozen causal agent cases
+
+[causal-v1](benchmarks/causal-v1/README.md) fixes three archived-state source cases
+(including one previously explored development case) and two implementation
+holdouts before protocol-state execution. It pins all proposals, model/prompt
+configuration and source hashes. This is a one-protocol decision integration
+comparison, not a profitability or unseen-model-training-data claim. The frozen
+input tests perform no archive reads and do not execute holdouts.
