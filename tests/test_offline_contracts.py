@@ -96,16 +96,16 @@ class OfflineContractTests(unittest.TestCase):
                             socket,
                             "socket",
                             side_effect=AssertionError("Network forbidden"),
-                        ),
+                        ) as network,
                         patch(
                             "builtins.open",
                             side_effect=AssertionError("File retrieval forbidden"),
-                        ),
+                        ) as file_io,
                         patch.object(
                             Path,
                             "open",
                             side_effect=AssertionError("File retrieval forbidden"),
-                        ),
+                        ) as path_io,
                         self.assertRaises(Unresolvable),
                     ):
                         check.validate(
@@ -121,3 +121,6 @@ class OfflineContractTests(unittest.TestCase):
                                 "agent": {},
                             }
                         )
+                    network.assert_not_called()
+                    file_io.assert_not_called()
+                    path_io.assert_not_called()
