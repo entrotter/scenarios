@@ -1,5 +1,7 @@
 # Entrotter Scenarios
 
+[Workspace setup](https://github.com/entrotter/entrotter#quick-start-without-dependencies-or-an-api-key) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [MIT license](LICENSE)
+
 Open, versioned inputs and schemas for reproducible agent stress tests. MIT.
 The easiest place to contribute is a new scenario and its evidence.
 
