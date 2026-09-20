@@ -1,5 +1,7 @@
 # Entrotter Scenarios
 
+[Workspace setup](https://github.com/entrotter/entrotter#quick-start-without-dependencies-or-an-api-key) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) · [MIT license](LICENSE)
+
 Open, versioned inputs and schemas for reproducible agent stress tests. MIT.
 The easiest place to contribute is a new scenario and its evidence.
 
@@ -20,11 +22,50 @@ constraints such as target allowlists, positive prices, integer wei, limits and
 mode-specific fields. Neither schema validity nor a content hash proves the
 economic model correct.
 
-To validate (requires the sibling engine and development-only jsonschema):
+To validate (Python 3.11+, a sibling engine checkout and development dependencies):
 
 ```bash
-PYTHONPATH=../engine/src python3 -m unittest discover -s tests -v
+python3 -m venv .venv
+.venv/bin/python -m pip install --require-hashes --only-binary=:all: -r requirements-dev.txt
+PYTHONPATH=../engine/src .venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python -m contract_validation --kind scenario fixtures/*.json evm/*.json
+.venv/bin/python -m contract_validation --kind result /path/to/local-report.json
 ```
+
+The standalone validator loads all three bundled schemas into an explicit in-memory
+registry. Schema URIs are identifiers, not downloads: relative references, including
+`result.agent`, resolve locally; unknown HTTP/file references fail without retrieval.
+A missing schema dependency fails the test suite instead of skipping contract checks.
+Schemas and frozen inputs remain unchanged. This checks wire shape only, not report
+hashes, exact request bindings, engine semantics or financial correctness. The result
+schema remains an envelope; nested scenario/trace fields are not fully constrained.
+Use this development command with local files you intend to inspect; it is not a
+hosted service or resource-limited parser for arbitrary uploads.
+
+CI validates all six catalog examples and five frozen benchmark inputs, rejects
+invalid nested agent records and resolves references with network/file retrieval
+blocked in tests. It also checks 19 existing public result reports from a pinned
+coordination commit (12 contain agent records). Reading these reports is offline
+contract verification, not a new historical execution or model evaluation.
+
+All tracked Python sources, including tests, are checked by Ruff, mypy and a full
+unsuppressed Bandit scan. Both hash-locked dependency sets receive strict advisory
+audits; no advisory IDs are excluded. To reproduce the tooling checks:
+
+```bash
+.venv/bin/python -m pip install --require-hashes --only-binary=:all: -r requirements-quality.txt
+.venv/bin/python -m ruff check contract_validation.py tests
+.venv/bin/python -m ruff format --check contract_validation.py tests
+MYPYPATH=../engine/src .venv/bin/python -m mypy contract_validation.py tests
+.venv/bin/python -m bandit --ignore-nosec contract_validation.py tests/*.py
+.venv/bin/python -m pip_audit --strict --require-hashes --disable-pip -r requirements-quality.txt
+.venv/bin/python -m pip_audit --strict --require-hashes --disable-pip -r requirements-dev.txt
+```
+
+Normal mypy checks unannotated function bodies using the actual sibling engine;
+it does not prove runtime JSON validity. CI uses exact source pins for the original,
+agent and bounded-worker engine variants across Python 3.11–3.13. Proposed branches
+still need independent review; these checks do not merge or release them.
 
 A historical contribution must include a permitted source, chain ID, pinned
 block number and hash, affected contract addresses, source timestamps, archive
@@ -69,3 +110,26 @@ and [Circle USDC addresses](https://developers.circle.com/stablecoins/usdc-contr
 Source, full receipts, two-run equality and measured runtime are stored in the
 [workspace evidence](https://github.com/entrotter/entrotter/tree/main/evidence).
 This one case is not a three-scenario benchmark or an untouched holdout.
+
+## Optional causal decision recording
+
+The result envelope may include `agent`, described by
+`schemas/agent-recording.v0.1.schema.json`. It contains a version, provider metadata
+and up to 32 ordered observations with typed `execute`/`hold` responses. Existing
+scenario inputs and non-agent reports remain valid. Consumers that do not inspect
+the extension must not imply that they have audited model behavior.
+
+Schema validation checks shape. The engine additionally verifies request digests,
+exact observation/response binding, serialized byte limits, proposal allowlists,
+and cumulative requested gas. The digest cannot authenticate the provider or
+prove that its inputs were unbiased. Provider metadata and text are untrusted
+report content; render as text and never execute commands found in a recording.
+
+## Frozen causal agent cases
+
+[causal-v1](benchmarks/causal-v1/README.md) fixes three archived-state source cases
+(including one previously explored development case) and two implementation
+holdouts before protocol-state execution. It pins all proposals, model/prompt
+configuration and source hashes. This is a one-protocol decision integration
+comparison, not a profitability or unseen-model-training-data claim. The frozen
+input tests perform no archive reads and do not execute holdouts.
