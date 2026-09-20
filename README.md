@@ -11,6 +11,9 @@ The easiest place to contribute is a new scenario and its evidence.
 | `evm/local-branch-revert.json` | Local native transfers and REVERT bytecode | Verified with Anvil v1.8.3 |
 | `evm/ethereum-state-fork.json` | Archived-block execution template | Native fork executed; use the pinned Uniswap case below for token evidence |
 
+See the [recovery-trap walkthrough](docs/recovery-trap.md) for a field-by-field
+explanation of the synthetic recovery fixture.
+
 Every fixture has a provenance kind, description, baseline and candidate
 policy, costs and an explicit observation sequence. Money is serialized as
 decimal strings, not binary floats. Strategies never receive future prices.
